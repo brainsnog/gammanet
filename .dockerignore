@@ -1,9 +1,16 @@
-.venv/
+# Ignore entire directories (the most important part)
+data/
+training/
+output/
 venv/
+.venv/
 .git/
-.gitignore
+.github/
+
+# Ignore python/OS junk
 __pycache__/
 *.pyc
 .DS_Store
-data/raw/*.h5 
-# (Note: We will copy only the specific model file we need, not the whole data folder)
+
+# Ignore local environment files
+.env
