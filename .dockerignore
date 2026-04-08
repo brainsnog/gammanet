@@ -1,0 +1,9 @@
+.venv/
+venv/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.DS_Store
+data/raw/*.h5 
+# (Note: We will copy only the specific model file we need, not the whole data folder)
