@@ -78,7 +78,8 @@ if uploaded_file:
                 </div>
             ''', unsafe_allow_html=True)
 
-        spectrum_data = spectra_df.iloc[sample_index].tolist()
+        # Force selection of only the first 1024 numerical values
+        spectrum_data = spectra_df.iloc[sample_index].values[:1024].tolist()
 
         with st.spinner('INFERENCE_IN_PROGRESS...'):
             payload = {"data": spectrum_data}
