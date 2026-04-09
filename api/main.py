@@ -3,6 +3,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from models.cnn import GammaNet1D
+from fastapi.middleware.cors import CORSMiddleware
 
 # 1. Initialize API and Model
 app = FastAPI(title="GammaNet: Radioisotope Identification API")
@@ -13,6 +14,21 @@ device = torch.device("cpu")
 model = GammaNet1D(num_classes=5)
 model.load_state_dict(torch.load("models/gammanet_v1.pt", map_location=device))
 model.eval()
+
+
+# Allow requests from your specific Railway dashboard
+origins = [
+    "https://gammanet-production.up.railway.app/", 
+    "http://localhost:8501", # For local testing
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # For debugging, you can use ["*"] to allow everything
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 2. Define Data Schema
 class SpectrumRequest(BaseModel):
