@@ -146,6 +146,8 @@ if uploaded_file:
                         font=dict(family='JetBrains Mono', size=14, color='#E0E0E0')
                     )
                 )
+
+                st.write(f"TERMINAL_VERIFY: Isotope={res.get('isotope')} | DataPoints={len(spectrum_data)}")
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
                 # Inference Modules
