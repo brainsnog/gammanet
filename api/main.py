@@ -8,14 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 # 1. Initialize API and Model
 app = FastAPI(title="GammaNet: Radioisotope Identification API")
 
-ISOTOPES = ["Cs137", "Co60", "Am241", "Eu152", "K40"]
-device = torch.device("cpu")
-
-model = GammaNet1D(num_classes=5)
-model.load_state_dict(torch.load("models/gammanet_v1.pt", map_location=device))
-model.eval()
-
-
 # Allow requests from your specific Railway dashboard
 origins = [
     "https://gammanet-production.up.railway.app/", 
@@ -29,6 +21,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+ISOTOPES = ["Cs137", "Co60", "Am241", "Eu152", "K40"]
+device = torch.device("cpu")
+
+model = GammaNet1D(num_classes=5)
+model.load_state_dict(torch.load("models/gammanet_v1.pt", map_location=device))
+model.eval()
 
 # 2. Define Data Schema
 class SpectrumRequest(BaseModel):
