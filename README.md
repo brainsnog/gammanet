@@ -8,6 +8,7 @@
 
 **Objective:** To bridge the "Sim-to-Real" gap in nuclear security by deploying a 1D-CNN capable of identifying radioisotopes from raw NaI(Tl) spectral data in a production environment.
 
+Live link: https://gammanet-production.up.railway.app/
 ---
 
 ## 01 // Executive Summary
