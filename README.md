@@ -5,13 +5,6 @@
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
 ![Docker](https://img.shields.io/badge/Deploy-Docker-2496ED)
 
-> Bridging the Sim-to-Real gap in nuclear security: a production-deployed 1D-CNN for automated radioisotope identification from raw NaI(Tl) gamma-ray spectral data.
-
----
-
-# GammaNet: Deep Learning for Real-Time Radioisotope Identification
-
-[![Deployment Status](https://img.shields.io/badge/Live-Railway-brightgreen)](https://gammanet-production.up.railway.app/)
 
 **Objective:** To bridge the "Sim-to-Real" gap in nuclear security by deploying a 1D-CNN capable of identifying radioisotopes from raw NaI(Tl) spectral data in a production environment.
 
