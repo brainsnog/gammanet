@@ -9,95 +9,85 @@
 
 ---
 
-## Executive Summary
+# GammaNet: Deep Learning for Real-Time Radioisotope Identification
 
-GammaNet is a physics-informed machine learning platform that automates the identification of isotopic signatures. By treating gamma-ray spectra as 1D signals rather than static feature vectors, it employs a 1D Convolutional Neural Network operating on 1024-channel inputs — allowing convolutional kernels to act as learned, automated peak finders.
+[![Deployment Status](https://img.shields.io/badge/Live-Railway-brightgreen)](https://gammanet-production.up.railway.app/)
 
-The project demonstrates a full-stack ML engineering lifecycle: from **Physics-Informed Synthetic Data Generation** (modelling Gaussian photopeaks and exponential Compton backgrounds) through to **Containerised Microservice Deployment** on Railway Cloud.
+**Objective:** To bridge the "Sim-to-Real" gap in nuclear security by deploying a 1D-CNN capable of identifying radioisotopes from raw NaI(Tl) spectral data in a production environment.
 
 ---
 
-## Engineering Architecture
+## 01 // Executive Summary
 
-### The Sidecar Container Strategy
+GammaNet is a physics-informed machine learning platform designed to automate the identification of isotopic signatures. By treating gamma-ray spectra as 1D signals rather than static data, the system utilises a 1D Convolutional Neural Network (CNN) to perform automated feature extraction on 1024-channel inputs.
 
-To optimise for cloud deployment under tight resource constraints, GammaNet uses a **Sidecar Process Architecture** — two distinct service layers orchestrated within a single Linux container:
+The project demonstrates a full-stack engineering lifecycle: from Physics-Informed Synthetic Data Generation (modeling Gaussian photopeaks and exponential backgrounds) to a Containerized Microservice Deployment.
 
-| Layer | Component | Role |
-|---|---|---|
-| Back-end | FastAPI + Uvicorn | Model lifecycle management, tensor transformation, REST endpoints |
-| Front-end | Streamlit + Plotly | Real-time interactive spectral visualisation ("Industrial HUD") |
+---
 
-### Key Technical Challenges
+## 02 // Engineering Architecture
+
+### The "Sidecar" Container Strategy
+
+To optimize for cloud deployment, I engineered a Sidecar Process Architecture. Within a single Linux container, the system orchestrates two distinct layers:
+
+- **The Inference Engine (Back-end):** A FastAPI service that manages the PyTorch model lifecycle and handles tensor transformations.
+- **The Analysis Terminal (Front-end):** A Streamlit-based "Industrial HUD" that provides operators with real-time interactive visualizations using Plotly.
+
+### Key Technical Challenges Overcome
 
 **Memory-Constrained Inference**
-Optimised the 1D-CNN to operate under a 512 MB RAM ceiling by using a `cpu-only` PyTorch build and efficient HDF5 streaming via PyTables, preventing OOM crashes during model initialisation.
+Successfully optimized the 1D-CNN to operate under a 512MB RAM ceiling by utilizing a cpu-only PyTorch build and efficient HDF5 streaming via PyTables, preventing OOM (Out-of-Memory) crashes during model initialization.
 
 **Process Orchestration**
-Developed a custom `start.sh` entrypoint to manage asynchronous process start-up, implementing a health-check handshake that gates the UI until the API is confirmed warm.
+Developed a custom `start.sh` entrypoint to manage asynchronous process start-ups, implementing a health-check handshake to ensure the API is "Warm" before the UI accepts user data.
 
 **Cross-Origin Networking**
-Resolved internal networking blocks (Error 111/403) by standardising on Linux gateway binding (`0.0.0.0`) and implementing a robust CORS policy for internal loopback communication.
+Resolved complex internal networking blocks (Error 111/403) by standardizing on a Linux gateway binding (`0.0.0.0`) and implementing a robust CORS policy for internal loopback communication.
 
 ---
 
-## The Physics-ML Pipeline
+## 03 // The Physics-ML Pipeline
 
-### 1. Synthetic Twin Generation
-Data was generated using the [PyRIID](https://github.com/sandialabs/pyriid) framework (Sandia National Laboratories). A custom **Manual Seed Factory** simulates realistic NaI(Tl) detector responses, including Gaussian peak broadening (FWHM) and Compton continuum slopes across a training corpus of 50,000 spectra.
+**1. Synthetic Twin Generation**
+Data was generated using the PyRIID framework (Sandia National Laboratories). I implemented a custom "Manual Seed Factory" to simulate realistic NaI detector responses, including Gaussian peak broadening ($FWHM$) and Compton continuum slopes.
 
-### 2. 1D-CNN Architecture
-Unlike traditional MLPs operating on flat feature vectors, the 1D-CNN uses convolutional kernels as automated peak finders — identifying local energy correlations that remain robust against slight detector gain shifts.
+**2. 1D-CNN Architecture**
+Unlike traditional MLPs, the 1D-CNN uses convolutional kernels as "automated peak finders," identifying local energy correlations regardless of slight gain shifts.
 
-### 3. Spectral Calibration
-The operator UI performs real-time calibration from channel index to energy (keV) using a calculated slope of **3.3135 keV/ch**, enabling scientific validation of classification results against known isotope libraries.
+**3. Spectral Calibration**
+The UI performs real-time calibration from Channel Index to Energy (keV) using a calculated slope of $3.3135 \text{ keV/ch}$, allowing for scientific validation of the results.
 
 ---
 
-## Tech Stack
+## 04 // Tech Stack
 
 | Domain | Tools |
 |---|---|
-| Deep Learning | PyTorch (1D-CNN), SHAP (XAI validation) |
-| Data Science | NumPy, Pandas, H5Py (HDF5 serialisation) |
-| API / Back-end | FastAPI, Uvicorn, Pydantic |
-| Front-end | Streamlit, Plotly |
-| DevOps | Docker, Bash scripting, Railway Cloud |
+| Deep Learning | PyTorch (1D-CNN), SHAP (XAI Validation) |
+| Data Science | NumPy, Pandas, H5Py (HDF5 Serialization) |
+| API / Backend | FastAPI, Uvicorn, Pydantic (Data Validation) |
+| Frontend | Streamlit, Plotly (Interactive Spectral HUD) |
+| DevOps | Docker, Bash Scripting, Railway Cloud |
 
 ---
 
-## Project Structure
+## 05 // Project Structure
 
 ```
-gammanet/
 ├── api/
-│   └── main.py              # FastAPI: model loading & REST endpoints
+│   └── main.py          # FastAPI: Model loading & REST endpoints
 ├── models/
-│   ├── cnn.py               # PyTorch: 1D-CNN class with dimension guards
-│   └── gammanet_v1.pt       # Serialised weights (trained on 50k spectra)
+│   ├── cnn.py           # PyTorch: 1D-CNN Class with Dimension Guards
+│   └── gammanet_v1.pt   # Serialized weights (Trained on 50k spectra)
 ├── data/
-│   └── generate.py          # Physics-informed data generation script
+│   └── generate.py      # Physics-informed data generation script
 ├── notebooks/
-│   └── 01_eda.ipynb         # Exploratory data analysis & XAI (SHAP)
-├── ui.py                    # Streamlit: operator dashboard
-├── start.sh                 # Docker entrypoint: process orchestrator
-├── Dockerfile               # Multi-layer container definition
-└── requirements.txt         # Dependency manifest
-```
-
----
-
-## Deployment
-
-The live deployment is hosted on Railway. The container entrypoint (`start.sh`) handles service orchestration: the FastAPI inference engine starts first, and the Streamlit UI is held until the health-check confirms the API is ready to serve requests.
-
-**Live:** [gammanet-production.up.railway.app](https://gammanet-production.up.railway.app/)
-
-To run locally:
-
-```bash
-docker build -t gammanet .
-docker run -p 8501:8501 -p 8000:8000 gammanet
+│   └── 01_eda.ipynb     # Exploratory Data Analysis & XAI (SHAP)
+├── ui.py                # Streamlit: Operator Dashboard
+├── start.sh             # Docker Entrypoint: Process Orchestrator
+├── Dockerfile           # Multi-layer container definition
+└── requirements.txt     # Dependency manifest
 ```
 
 ---
